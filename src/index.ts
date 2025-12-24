@@ -13,6 +13,7 @@ import { displayInTerminal, getTerminalName } from "./terminal/display";
 import { copyImageToClipboard } from "./clipboard";
 import { isWrappedAvailable } from "./utils/dates";
 import { formatNumber } from "./utils/format";
+import type { OpenCodeStats } from "./types";
 
 const VERSION = "1.0.0";
 
@@ -132,27 +133,21 @@ async function main() {
     p.log.info(`Terminal (${getTerminalName()}) doesn't support inline images`);
   }
 
-  const shouldCopy = await p.confirm({
-    message: "Copy to clipboard?",
-    initialValue: true,
-  });
-
   const filename = `oc-wrapped-${requestedYear}.png`;
-  if (!p.isCancel(shouldCopy) && shouldCopy) {
-    const result = await copyImageToClipboard(image.fullSize, filename);
-    if (result.success) {
-      p.log.success("Copied to clipboard!");
-    } else {
-      p.log.warn(`Clipboard unavailable: ${result.error}`);
-      p.log.info("You can save the image to disk instead.");
-    }
+  const { success, error } = await copyImageToClipboard(image.fullSize, filename);
+
+  if (success) {
+    p.log.success("Automatically copied image to clipboard!");
+  } else {
+    p.log.warn(`Clipboard unavailable: ${error}`);
+    p.log.info("You can save the image to disk instead.");
   }
 
   const defaultPath = join(process.env.HOME || "~", filename);
 
   const shouldSave = await p.confirm({
     message: `Save image to ~/${filename}?`,
-    initialValue: false,
+    initialValue: true,
   });
 
   if (p.isCancel(shouldSave)) {
@@ -169,8 +164,65 @@ async function main() {
     }
   }
 
-  p.outro("Share your wrapped! 🎉");
+  const shouldShare = await p.confirm({
+    message: "Share on X (Twitter)? Don't forget to attach your image!",
+    initialValue: true,
+  });
+
+  if (!p.isCancel(shouldShare) && shouldShare) {
+    const tweetUrl = generateTweetUrl(stats);
+    const opened = await openUrl(tweetUrl);
+    if (opened) {
+      p.log.success("Opened X in your browser.");
+    } else {
+      p.log.warn("Couldn't open browser. Copy this URL:");
+      p.log.info(tweetUrl);
+    }
+  }
+
+  p.outro("Share your wrapped!");
   process.exit(0);
+}
+
+function generateTweetUrl(stats: OpenCodeStats): string {
+  const text = [
+    `my ${stats.year} opencode wrapped:`,
+    ``,
+    `${formatNumber(stats.totalSessions)} sessions`,
+    `${formatNumber(stats.totalMessages)} messages`,
+    `${formatNumber(stats.totalTokens)} tokens`,
+    `${stats.maxStreak} day streak`,
+    ``,
+    `get yours: npx oc-wrapped`,
+  ].join("\n");
+
+  const url = new URL("https://x.com/intent/tweet");
+  url.searchParams.set("text", text);
+  return url.toString();
+}
+
+async function openUrl(url: string): Promise<boolean> {
+  const platform = process.platform;
+  let command: string;
+
+  if (platform === "darwin") {
+    command = "open";
+  } else if (platform === "win32") {
+    command = "start";
+  } else {
+    command = "xdg-open";
+  }
+
+  try {
+    const proc = Bun.spawn([command, url], {
+      stdout: "ignore",
+      stderr: "ignore",
+    });
+    await proc.exited;
+    return proc.exitCode === 0;
+  } catch {
+    return false;
+  }
 }
 
 main().catch((error) => {
