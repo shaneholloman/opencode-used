@@ -1,7 +1,6 @@
-// Image generator using Satori and Resvg
-
 import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
+import { Resvg, initWasm } from "@resvg/resvg-wasm";
+import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
 import { WrappedTemplate } from "./template";
 import type { OpenCodeStats } from "../types";
 import { loadFonts } from "./fonts";
@@ -15,19 +14,19 @@ export interface GeneratedImage {
 }
 
 export async function generateImage(stats: OpenCodeStats): Promise<GeneratedImage> {
+  await initWasm(Bun.file(resvgWasm).arrayBuffer());
+
   const svg = await satori(<WrappedTemplate stats={stats} />, {
     width: layout.canvas.width,
     height: layout.canvas.height,
     fonts: await loadFonts(),
   });
 
-  const sizes = [layout.canvas.width, Math.round(layout.canvas.width * 0.75)];
-
-  const [fullSize, displaySize] = sizes.map((size) => {
+  const [fullSize, displaySize] = [1, 0.75].map((v) => {
     const resvg = new Resvg(svg, {
       fitTo: {
-        mode: "width",
-        value: size,
+        mode: "zoom",
+        value: v,
       },
     });
     return Buffer.from(resvg.render().asPng());

@@ -1,16 +1,16 @@
 #!/usr/bin/env bun
 
-// OpenCode Wrapped - CLI Entry Point
-
 import * as p from "@clack/prompts";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { setImageBase64 } from "@crosscopy/clipboard";
+
+import { xdgData } from "xdg-basedir";
 
 import { checkOpenCodeDataExists } from "./collector";
 import { calculateStats } from "./stats";
 import { generateImage } from "./image/generator";
 import { displayInTerminal, getTerminalName } from "./terminal/display";
+import { copyImageToClipboard } from "./clipboard";
 import { isWrappedAvailable } from "./utils/dates";
 import { formatNumber } from "./utils/format";
 
@@ -18,12 +18,12 @@ const VERSION = "1.0.0";
 
 function printHelp() {
   console.log(`
-opencode-wrapped v${VERSION}
+oc-wrapped v${VERSION}
 
 Generate your OpenCode year in review stats card.
 
 USAGE:
-  opencode-wrapped [OPTIONS]
+  oc-wrapped [OPTIONS]
 
 OPTIONS:
   --year <YYYY>    Generate wrapped for a specific year (default: current year)
@@ -31,8 +31,8 @@ OPTIONS:
   --version, -v    Show version number
 
 EXAMPLES:
-  opencode-wrapped              # Generate current year wrapped
-  opencode-wrapped --year 2025  # Generate 2025 wrapped
+  oc-wrapped              # Generate current year wrapped
+  oc-wrapped --year 2025  # Generate 2025 wrapped
 `);
 }
 
@@ -55,7 +55,7 @@ async function main() {
   }
 
   if (values.version) {
-    console.log(`opencode-wrapped v${VERSION}`);
+    console.log(`oc-wrapped v${VERSION}`);
     process.exit(0);
   }
 
@@ -76,7 +76,7 @@ async function main() {
 
   const dataExists = await checkOpenCodeDataExists();
   if (!dataExists) {
-    p.cancel("OpenCode data not found at ~/.local/share/opencode\n\nMake sure you have used OpenCode at least once.");
+    p.cancel(`OpenCode data not found in ${xdgData}/opencode\n\nMake sure you have used OpenCode at least once.`);
     process.exit(0);
   }
 
@@ -132,11 +132,27 @@ async function main() {
     p.log.info(`Terminal (${getTerminalName()}) doesn't support inline images`);
   }
 
-  const defaultPath = join(process.env.HOME || "~", `opencode-wrapped-${requestedYear}.png`);
+  const shouldCopy = await p.confirm({
+    message: "Copy to clipboard?",
+    initialValue: true,
+  });
+
+  const filename = `oc-wrapped-${requestedYear}.png`;
+  if (!p.isCancel(shouldCopy) && shouldCopy) {
+    const result = await copyImageToClipboard(image.fullSize, filename);
+    if (result.success) {
+      p.log.success("Copied to clipboard!");
+    } else {
+      p.log.warn(`Clipboard unavailable: ${result.error}`);
+      p.log.info("You can save the image to disk instead.");
+    }
+  }
+
+  const defaultPath = join(process.env.HOME || "~", filename);
 
   const shouldSave = await p.confirm({
-    message: `Save image to ~/opencode-wrapped-${requestedYear}.png?`,
-    initialValue: true,
+    message: `Save image to ~/${filename}?`,
+    initialValue: false,
   });
 
   if (p.isCancel(shouldSave)) {
@@ -153,26 +169,8 @@ async function main() {
     }
   }
 
-  const shouldCopy = await p.confirm({
-    message: "Copy to clipboard?",
-    initialValue: true,
-  });
-
-  if (!p.isCancel(shouldCopy) && shouldCopy) {
-    try {
-      await copyImageToClipboard(image.fullSize);
-      p.log.success("Copied to clipboard!");
-    } catch (error) {
-      p.log.error(`Failed to copy: ${error}`);
-    }
-  }
-
   p.outro("Share your wrapped! 🎉");
   process.exit(0);
-}
-
-async function copyImageToClipboard(pngBuffer: Buffer): Promise<void> {
-  await setImageBase64(pngBuffer.toString("base64"));
 }
 
 main().catch((error) => {

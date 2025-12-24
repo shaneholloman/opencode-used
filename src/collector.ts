@@ -2,9 +2,10 @@
 
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { xdgData } from "xdg-basedir";
 import type { SessionData, MessageData, ProjectData } from "./types";
 
-const OPENCODE_DATA_PATH = join(process.env.HOME || "~", ".local/share/opencode/storage");
+const OPENCODE_DATA_PATH = join(xdgData!, "opencode/storage");
 
 export async function checkOpenCodeDataExists(): Promise<boolean> {
   try {

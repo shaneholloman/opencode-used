@@ -1,6 +1,6 @@
 <div align="center">
 
-# opencode-wrapped
+# oc-wrapped
 
 **Your year in code, beautifully visualized.**
 
@@ -36,7 +36,7 @@ Generate a personalized "Spotify Wrapped"-style summary of your [OpenCode](https
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/opencode-wrapped.git
+git clone https://github.com/moddi3/opencode-wrapped.git
 cd opencode-wrapped
 
 # Install dependencies
@@ -47,7 +47,7 @@ bun run start
 
 # Or build a standalone binary
 bun run build
-./dist/opencode-wrapped
+./dist/oc-wrapped
 ```
 
 ### Pre-built Binaries
@@ -56,66 +56,66 @@ Download the latest release for your platform:
 
 ```bash
 # macOS (Apple Silicon)
-curl -L https://github.com/yourusername/opencode-wrapped/releases/latest/download/opencode-wrapped-darwin-arm64 -o opencode-wrapped
-chmod +x opencode-wrapped
+curl -L https://github.com/moddi3/opencode-wrapped/releases/latest/download/oc-wrapped-darwin-arm64 -o oc-wrapped
+chmod +x oc-wrapped
 
 # macOS (Intel)
-curl -L https://github.com/yourusername/opencode-wrapped/releases/latest/download/opencode-wrapped-darwin-x64 -o opencode-wrapped
-chmod +x opencode-wrapped
+curl -L https://github.com/moddi3/opencode-wrapped/releases/latest/download/oc-wrapped-darwin-x64 -o oc-wrapped
+chmod +x oc-wrapped
 
 # Linux (x64)
-curl -L https://github.com/yourusername/opencode-wrapped/releases/latest/download/opencode-wrapped-linux-x64 -o opencode-wrapped
-chmod +x opencode-wrapped
+curl -L https://github.com/moddi3/opencode-wrapped/releases/latest/download/oc-wrapped-linux-x64 -o oc-wrapped
+chmod +x oc-wrapped
 ```
 
 ## Usage
 
 ```bash
 # Generate your wrapped for the current year
-opencode-wrapped
+oc-wrapped
 
 # Generate wrapped for a specific year
-opencode-wrapped --year 2024
+oc-wrapped --year 2024
 
 # Show help
-opencode-wrapped --help
+oc-wrapped --help
 ```
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
 | `--year <YYYY>` | Generate wrapped for a specific year (default: current year) |
-| `--help, -h` | Show help message |
-| `--version, -v` | Show version number |
+| `--help, -h`    | Show help message                                            |
+| `--version, -v` | Show version number                                          |
 
 ## Terminal Support
 
 The wrapped image displays natively in terminals that support inline images:
 
-| Terminal | Protocol | Status |
-|----------|----------|--------|
-| [Ghostty](https://ghostty.org) | Kitty Graphics | ✅ Full support |
-| [Kitty](https://sw.kovidgoyal.net/kitty/) | Kitty Graphics | ✅ Full support |
-| [WezTerm](https://wezfurlong.org/wezterm/) | Kitty + iTerm2 | ✅ Full support |
-| [iTerm2](https://iterm2.com) | iTerm2 Inline | ✅ Full support |
-| [Konsole](https://konsole.kde.org) | Kitty Graphics | ✅ Full support |
-| Other terminals | — | ⚠️ Image saved to file only |
+| Terminal                                   | Protocol       | Status                      |
+| ------------------------------------------ | -------------- | --------------------------- |
+| [Ghostty](https://ghostty.org)             | Kitty Graphics | ✅ Full support             |
+| [Kitty](https://sw.kovidgoyal.net/kitty/)  | Kitty Graphics | ✅ Full support             |
+| [WezTerm](https://wezfurlong.org/wezterm/) | Kitty + iTerm2 | ✅ Full support             |
+| [iTerm2](https://iterm2.com)               | iTerm2 Inline  | ✅ Full support             |
+| [Konsole](https://konsole.kde.org)         | Kitty Graphics | ✅ Full support             |
+| Other terminals                            | —              | ⚠️ Image saved to file only |
 
 ## Output
 
 The tool generates:
 
 1. **Terminal Summary** — Quick stats overview in your terminal
-2. **PNG Image** — A beautiful, shareable wrapped card saved to `~/opencode-wrapped-{year}.png`
+2. **PNG Image** — A beautiful, shareable wrapped card saved to your home directory
 3. **Clipboard** — Optionally copy the image directly to your clipboard
 
 ## Data Source
 
-OpenCode Wrapped reads data from your local OpenCode installation:
+OpenCode Wrapped reads data from your local OpenCode installation. It follows the XDG Base Directory Specification:
 
 ```
-~/.local/share/opencode/
+$XDG_DATA_HOME/opencode/ (usually ~/.local/share/opencode/)
 ```
 
 No data is sent anywhere. Everything is processed locally.
@@ -144,13 +144,13 @@ bun run build --target linux-x64,darwin-arm64
 
 ### Available Build Targets
 
-| Platform | Target | Output |
-|----------|--------|--------|
-| macOS (Apple Silicon) | `darwin-arm64` | `opencode-wrapped-darwin-arm64` |
-| macOS (Intel) | `darwin-x64` | `opencode-wrapped-darwin-x64` |
-| Linux (x64) | `linux-x64` | `opencode-wrapped-linux-x64` |
-| Linux (ARM64) | `linux-arm64` | `opencode-wrapped-linux-arm64` |
-| Windows (x64) | `windows-x64` | `opencode-wrapped-windows-x64.exe` |
+| Platform              | Target         | Output                       |
+| --------------------- | -------------- | ---------------------------- |
+| macOS (Apple Silicon) | `darwin-arm64` | `oc-wrapped-darwin-arm64`    |
+| macOS (Intel)         | `darwin-x64`   | `oc-wrapped-darwin-x64`      |
+| Linux (x64)           | `linux-x64`    | `oc-wrapped-linux-x64`       |
+| Linux (ARM64)         | `linux-arm64`  | `oc-wrapped-linux-arm64`     |
+| Windows (x64)         | `windows-x64`  | `oc-wrapped-windows-x64.exe` |
 
 ### Releasing
 
@@ -175,7 +175,7 @@ This will automatically build binaries for all platforms and create a GitHub rel
 ## Project Structure
 
 ```
-opencode-wrapped/
+oc-wrapped/
 ├── src/
 │   ├── index.ts          # CLI entry point
 │   ├── collector.ts      # Data collection from OpenCode
