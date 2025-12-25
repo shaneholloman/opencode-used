@@ -15,16 +15,6 @@ Generate a personalized "Spotify Wrapped"-style summary of your [OpenCode](https
 
 ---
 
-## Features
-
-- Sessions, messages, tokens, projects, and streaks
-- GitHub-style activity heatmap
-- Top models and providers breakdown
-- OpenCode Zen cost tracking
-- Shareable PNG image
-- Inline image display (Ghostty, Kitty, iTerm2, WezTerm, Konsole)
-- Auto-copy to clipboard
-
 ## Installation
 
 ### Quick Start
@@ -32,17 +22,13 @@ Generate a personalized "Spotify Wrapped"-style summary of your [OpenCode](https
 Run directly without installing:
 
 ```bash
-npx oc-wrapped
-# or
-bunx oc-wrapped
+npx oc-wrapped # or bunx, or yarn/pnpm dlx
 ```
 
 ### Global Install
 
 ```bash
-npm install -g oc-wrapped
-# or
-bun install -g oc-wrapped
+npm install -g oc-wrapped # or bun/yarn/pnpm
 ```
 
 Then run anywhere:
@@ -58,6 +44,16 @@ oc-wrapped
 | `--year, -y`    | Generate wrapped for a specific year |
 | `--help, -h`    | Show help message                    |
 | `--version, -v` | Show version number                  |
+
+## Features
+
+- Sessions, messages, tokens, projects, and streaks
+- GitHub-style activity heatmap
+- Top models and providers breakdown
+- OpenCode Zen cost tracking
+- Shareable PNG image
+- Inline image display (Ghostty, Kitty, iTerm2, WezTerm, Konsole)
+- Auto-copy to clipboard
 
 ## Terminal Support
 
